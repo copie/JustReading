@@ -162,7 +162,6 @@ def add_book():
 
 @main.route('/img', methods=['GET'])
 def img():
-    import ipdb; ipdb.set_trace()
     url = request.args['url']
     img = requests.get(url, timeout=10)
     return Response(img.content, mimetype="image/jpeg")
