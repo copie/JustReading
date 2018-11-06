@@ -1,11 +1,12 @@
 from app.main import main
-from flask import current_app, jsonify, request
+from flask import current_app, jsonify, request, Response
 from app.utils import check_return
 from app.exceptions import CodeNoneError, ParameterError, RequestFormatError, FindError
 from app.utils import in_site_search, zhuishu_search, easo_search, http_get, code2openid, get_book_info
 from app import db
 from app.models import User, Book
 from flask_login import login_user, login_required, current_user
+import requests
 
 
 @main.route("/", methods=['GET'])
@@ -157,3 +158,11 @@ def add_book():
     book = Book(book_id=bookid, user_id=user)
     db.session.add(book)
     db.session.commit()
+
+
+@main.route('/img', methods=['GET'])
+def img():
+    import ipdb; ipdb.set_trace()
+    url = request.args['url']
+    img = requests.get(url, timeout=10)
+    return Response(img.content, mimetype="image/jpeg")
