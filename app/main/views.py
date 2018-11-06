@@ -20,7 +20,7 @@ def index():
 @main.route('/login', methods=['POST'])
 @check_return(need_login=False)
 def login():
-    code = request.form.get('code')
+    code = request.json.get('code')
     if not isinstance(code, str):
         raise CodeNoneError
     open_id = code2openid(code)
