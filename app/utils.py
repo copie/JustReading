@@ -1,6 +1,8 @@
 import json
+import logging
 from functools import wraps
 from json import JSONDecodeError
+from traceback import format_exc
 
 from flask import current_app, jsonify
 from flask_login import current_user
@@ -13,6 +15,8 @@ from app.exceptions import (JRError, NeedLoginError, RequestError,
 
 parser = JsonComment(json)
 
+log = logging.getLogger(__name__)
+
 
 def check_return(need_login=True):
     def wraps_(func):
@@ -24,8 +28,10 @@ def check_return(need_login=True):
                 ret = func(*args, **kwargs) or {}
                 assert isinstance(ret, dict)
             except JRError as e:
+                log.error(format_exc())
                 ret = e.ret
             except Exception:
+                log.error(format_exc())
                 ret = {'code': -1, 'msg': '未知错误'}
             if 'code' not in ret:
                 ret.update({'code': 0, 'msg': "请求成功"})
