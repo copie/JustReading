@@ -10,8 +10,9 @@ from jsoncomment import JsonComment
 from requests import request
 from requests.exceptions import RequestException, Timeout
 
-from app.exceptions import (JRError, NeedLoginError, RequestError,
-                            RequestFormatError, RequestTimeoutError, WXError)
+from app.exceptions import (JRError, NeedLoginError, RequestDateError,
+                            RequestError, RequestFormatError,
+                            RequestTimeoutError, WXError)
 
 parser = JsonComment(json)
 
