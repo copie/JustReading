@@ -47,13 +47,13 @@ def http_get(url, payload=None):
     try:
         ret = request('GET', url, params=payload, timeout=10)
         if ret.status_code != 200:
-            raise RequestDateError
+            raise RequestDateError(f"URL: {url}, payload: {payload},ret:{ret.reason}")
         text = ret.content.decode(errors='ignore').strip().strip('\ufeff')
         ret = parser.loads(text)
-    except Timeout:
-        raise RequestTimeoutError
-    except RequestException:
-        raise RequestError
+    except Timeout as e:
+        raise RequestTimeoutError from e
+    except RequestException as e:
+        raise RequestError from e
     return ret
 
 
@@ -70,8 +70,8 @@ def format_in_site_search_data(datas, page, count=20):
             item['Img'] = get_img_url(data['Img'])
             item['Desc'] = data['Desc']
             items.append(item)
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
 
     ret['pageSize'] = len(items)
     ret['pageNo'] = page
@@ -91,8 +91,8 @@ def format_easo_search_data(datas, page, count=20):
             item['Img'] = get_img_url(data['imgUrl'])
             item['Desc'] = data['desc']
             items.append(item)
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
 
     ret['pageSize'] = len(items)
     ret['pageNo'] = page
@@ -112,15 +112,15 @@ def format_zhuishu_search_data(datas, page, count=20):
             item['Img'] = get_img_url(data['cover'])
             item['Desc'] = data['shortIntro']
             items.append(item)
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
 
     ret['pageSize'] = len(items)
     ret['pageNo'] = page
     return ret
 
 
-def in_site_search(key, page, count=20, siteid='app'):
+def in_site_search(key, page, count=20, siteid='app2'):
     url = 'https://sou.jiaston.com/search.aspx'
     payload = {
         'key': key,
@@ -178,6 +178,6 @@ def get_book_info(bookid):
     try:
         data = data['data']
         ret['data'] = data
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
     return ret

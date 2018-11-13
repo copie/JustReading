@@ -41,8 +41,8 @@ def search():
         search_type = str(request.args['searchType'])
         book_name = str(request.args['bookName'])
         page_no = int(request.args['pageNo'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
 
     if search_type == 'biquge':
         ret = in_site_search(book_name, page_no)
@@ -51,7 +51,7 @@ def search():
     elif search_type == 'sou':
         ret = easo_search(book_name, page_no)
     else:
-        raise ParameterError
+        raise ParameterError(f'search_type: {search_type}')
 
     return ret
 
@@ -62,8 +62,8 @@ def get_bookid():
     try:
         book_name = str(request.args['Name'])
         author = str(request.args['Author'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
 
     url = 'http://quapp.1122dh.com/BookAction.aspx'
     payload = {
@@ -79,10 +79,10 @@ def get_bookid():
         if data is None:
             raise FindError
         bookid = data['bookid']
-    except FindError:
-        raise FindError
-    except Exception:
-        raise RequestFormatError
+    except FindError as e:
+        raise FindError from e
+    except Exception as e:
+        raise RequestFormatError from e
     ret['bookid'] = bookid
 
     return ret
@@ -93,8 +93,8 @@ def get_bookid():
 def book_info():
     try:
         bookid = int(request.args['bookID'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
     ret = get_book_info(bookid)
     return ret
 
@@ -104,8 +104,8 @@ def book_info():
 def book_contents():
     try:
         bookid = int(request.args['bookID'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
     url = 'http://quapp.1122dh.com/book/{bookid}/'.format(bookid=bookid)
 
     data = http_get(url)
@@ -113,8 +113,8 @@ def book_contents():
     try:
         data = data['data']
         ret['data'] = data
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
     return ret
 
 
@@ -124,8 +124,8 @@ def content():
     try:
         bookid = int(request.args['bookID'])
         chapter = int(request.args['chapter'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
     url = 'http://quapp.1122dh.com/book/{bookid}/{chapter}.html'.format(bookid=bookid, chapter=chapter)
 
     data = http_get(url)
@@ -133,8 +133,8 @@ def content():
     try:
         data = data['data']
         ret['data'] = data
-    except Exception:
-        raise RequestFormatError
+    except Exception as e:
+        raise RequestFormatError from e
     return ret
 
 
@@ -152,10 +152,10 @@ def book_list():
 def add_book():
     try:
         bookid = int(request.args['bookID'])
-    except Exception:
-        raise ParameterError
+    except Exception as e:
+        raise ParameterError from e
     user = current_user
-    book = Book(book_id=bookid, user_id=user)
+    book = Book(book_id=bookid, user=user)
     db.session.add(book)
     db.session.commit()
 
