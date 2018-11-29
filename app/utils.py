@@ -41,11 +41,28 @@ def check_return(need_login=True):
     return wraps_
 
 
-def http_get(url, payload=None):
+def loop_http_get(func):
+    @wraps(func)
+    def wraps_(*args, **kwargs):
+        one = 1.5
+        for i in range(0, 3):
+            try:
+                ret = func(*args, **kwargs, limit_time=one * 2 ** i)
+            except RequestTimeoutError as e:
+                continue
+            else:
+                return ret
+        else:
+            raise RequestTimeoutError
+    return wraps_
+
+
+@loop_http_get
+def http_get(url, payload=None, limit_time=10):
     if payload is None:
         payload = {}
     try:
-        ret = request('GET', url, params=payload, timeout=10)
+        ret = request('GET', url, params=payload, timeout=limit_time)
         if ret.status_code != 200:
             raise RequestDateError(f"URL: {url}, payload: {payload},ret:{ret.reason}")
         text = ret.content.decode(errors='ignore').strip().strip('\ufeff')
