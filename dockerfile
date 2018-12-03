@@ -1,19 +1,14 @@
-FROM base/archlinux
+FROM python:3.7-alpine
 
 VOLUME [ "/data" ]
 COPY ./requirements.txt /
 RUN cd /
-RUN echo "Server = http://mirrors.163.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
-RUN pacman -Syy&&pacman -S python --noconfirm&& \
-    pacman -S python-pip --noconfirm&& \
-    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple gunicorn&& \
-    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple gevent&& \
-    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r /requirements.txt
-
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev&& \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple gunicorn&& \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple gevent&& \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r /requirements.txt&& \
+    apk del .build-deps gcc musl-dev
 EXPOSE 8000
-RUN echo "zh_CN.UTF-8 UTF-8" > /etc/locale.gen
-RUN locale-gen
-ENV LANG=zh_CN.UTF-8
 ENV FLASK_CONFIG=production
 WORKDIR /data
 CMD [ "gunicorn","manage:app","--bind=0.0.0.0:8000","-k","gevent"]
